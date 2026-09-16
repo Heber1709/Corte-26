@@ -8,6 +8,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('appointments')
 export class AppointmentsController {
@@ -41,6 +42,18 @@ export class AppointmentsController {
   @Patch(':id/cancel')
   cancel(@Param('id', ParseIntPipe) id: number) {
     return this.appointmentsService.cancelByClient(id);
+  }
+  @UseGuards(JwtAuthGuard)
+  @Get('my-appointments')
+  getMyAppointments(@CurrentUser() user: any) {
+    return this.appointmentsService.getClientAppointments(user.sub);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.BARBER, Role.ADMIN)
+  @Get('schedule')
+  getSchedule(@CurrentUser() user: any, @Query('date') date: string) {
+    return this.appointmentsService.getBarberSchedule(user.sub, date);
   }
 
 }

@@ -229,4 +229,33 @@ export class AppointmentsService {
       });
     });
   }
+  // 5. Historial de Citas del Cliente
+  async getClientAppointments(clientId: number) {
+    return this.prisma.appointment.findMany({
+      where: { clientId },
+      include: {
+        barber: { select: { name: true } },
+        service: { select: { name: true, price: true } },
+      },
+      orderBy: { startTime: 'desc' },
+    });
+  }
+
+  // 6. Agenda del Barbero para un día específico
+  async getBarberSchedule(barberId: number, dateStr: string) {
+    const startOfDay = new Date(`${dateStr}T00:00:00`);
+    const endOfDay = new Date(`${dateStr}T23:59:59`);
+    
+    return this.prisma.appointment.findMany({
+      where: {
+        barberId,
+        startTime: { gte: startOfDay, lte: endOfDay },
+      },
+      include: {
+        client: { select: { name: true, phone: true, strikes: true } },
+        service: { select: { name: true, durationMinutes: true } },
+      },
+      orderBy: { startTime: 'asc' },
+    });
+  }
 }

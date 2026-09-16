@@ -21,4 +21,14 @@ export class ServicesService {
     }
     return service;
   }
+  async create(data: any) {
+    return this.prisma.service.create({ data });
+  }
+
+  async update(id: number, data: any) {
+    return this.prisma.service.update({
+      where: { id },
+      data,
+    });
+  }
 }
