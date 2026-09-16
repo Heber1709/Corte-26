@@ -1,0 +1,19 @@
+<div style="display: flex; flex-direction: column; align-items: center; margin-top: 100px; font-family: sans-serif;">
+  <h1>💈 Barbería Corte-26</h1>
+  <p>Ingresa tu correo de prueba para conectarte a la API</p>
+  
+  <div style="margin-top: 20px;">
+    <input 
+      type="email" 
+      [(ngModel)]="email" 
+      placeholder="cliente.prueba@gmail.com"
+      style="padding: 10px; width: 250px; border-radius: 5px; border: 1px solid #ccc;"
+    >
+    <button 
+      (click)="onLogin()"
+      style="padding: 10px 20px; margin-left: 10px; cursor: pointer; background: #000; color: #fff; border: none; border-radius: 5px;"
+    >
+      Ingresar
+    </button>
+  </div>
+</div>
