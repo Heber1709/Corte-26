@@ -45,6 +45,7 @@ model User {
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
 
+  passwordCredential PasswordCredential?
   clientAppointments  Appointment[]     @relation("ClientAppointments")
   barberAppointments  Appointment[]     @relation("BarberAppointments")
   facialAnalyses      FacialAnalysis[]
@@ -112,4 +113,21 @@ model ChatLog {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model PasswordCredential {
+  userId Int @id
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hash String
+  failures Int @default(0)
+  lockedUntil DateTime?
+}
+
+model EmailRegistration {
+  email String @id
+  name String
+  passwordHash String
+  tokenHash String @unique
+  expiresAt DateTime
+  sentAt DateTime @default(now())
 }

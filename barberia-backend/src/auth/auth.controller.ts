@@ -1,3 +1,4 @@
+import { PasswordAuthService } from './password-auth.service';
 import {
   Controller,
   Get,
@@ -14,7 +15,7 @@ import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService, private readonly passwords: PasswordAuthService) {}
 
   @Get('google')
   @UseGuards(AuthGuard('google'))
@@ -40,18 +41,9 @@ export class AuthController {
   }
 
   @Post('login')
-  async loginPorCorreo(@Body('email') email: string) {
-    if (
-      process.env.ENABLE_DEV_LOGIN !== 'true' ||
-      process.env.NODE_ENV === 'production'
-    ) {
-      throw new UnauthorizedException('Inicia sesión con Google');
-    }
-    if (!email) {
-      throw new UnauthorizedException('El correo electrónico es requerido');
-    }
-
-    // ✅ Aquí está el cambio: llamamos a .login() que ya definimos en tu servicio
-    return await this.authService.login(email);
-  }
+  login(@Body() body: { email?: unknown; password?: unknown }) { return this.passwords.login(body); }
+  @Post('register')
+  register(@Body() body: { email?: unknown; password?: unknown; name?: unknown }) { return this.passwords.register(body); }
+  @Post('accept-registration')
+  accept(@Body('token') token: unknown) { return this.passwords.accept(token); }
 }

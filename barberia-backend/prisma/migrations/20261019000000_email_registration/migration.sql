@@ -1,0 +1,9 @@
+CREATE TABLE "PasswordCredential" (
+ "userId" INTEGER PRIMARY KEY REFERENCES "User"("id") ON DELETE CASCADE,
+ "hash" TEXT NOT NULL, "failures" INTEGER NOT NULL DEFAULT 0, "lockedUntil" TIMESTAMP(3)
+);
+CREATE TABLE "EmailRegistration" (
+ "email" TEXT PRIMARY KEY, "name" TEXT NOT NULL, "passwordHash" TEXT NOT NULL,
+ "tokenHash" TEXT NOT NULL UNIQUE, "expiresAt" TIMESTAMP(3) NOT NULL,
+ "sentAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

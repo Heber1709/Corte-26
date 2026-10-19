@@ -10,10 +10,16 @@ export class AuthService {
     private http: HttpClient,
     private router: Router,
   ) {}
-  login(email: string) {
+  login(email: string, password: string = '') {
     return this.http
-      .post<any>(`${environment.apiUrl}/auth/login`, { email })
+      .post<any>(`${environment.apiUrl}/auth/login`, { email, password })
       .pipe(tap((r) => this.saveToken(r.accessToken)));
+  }
+  register(name: string, email: string, password: string) {
+    return this.http.post<{message: string}>(`${environment.apiUrl}/auth/register`, { name, email, password });
+  }
+  acceptRegistration(token: string) {
+    return this.http.post<{message: string}>(`${environment.apiUrl}/auth/accept-registration`, { token });
   }
   saveToken(token: string) {
     localStorage.setItem('jwt_token', token);

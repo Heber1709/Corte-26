@@ -90,3 +90,11 @@ Crear una cuenta administradora envía una invitación de 48 horas. Hasta acepta
 ### Envio con Gmail sin dominio propio
 
 Configurar MAIL_PROVIDER=gmail, GMAIL_USER (cuenta remitente) y GMAIL_APP_PASSWORD (contraseña de aplicación de Google, nunca la contraseña normal). Para Gmail no se usan RESEND_API_KEY ni INVITATION_FROM. La conexión usa SMTP con STARTTLS obligatorio en smtp.gmail.com:587. Guardar las variables tanto en .env local como en Vercel/backend y volver a desplegar. FRONTEND_URL en producción debe apuntar a https://barberia-corte-26.vercel.app para que el destinatario pueda aceptar desde su dispositivo.
+
+### Registro por correo y contraseña
+
+El login permite registrar cuentas nuevas de cliente. POST /auth/register envía un enlace de un solo uso (24 horas); POST /auth/accept-registration lo consume y crea la cuenta. POST /auth/login requiere correo y contraseña; ya no permite el acceso de desarrollo solo con correo. Las cuentas existentes de Google mantienen ese método y no se les asigna una contraseña mediante registro público.
+
+Aplicar 20261019000000_email_registration con `npx prisma migrate deploy` antes de iniciar el backend. Reutiliza MAIL_PROVIDER, GMAIL_USER, GMAIL_APP_PASSWORD y FRONTEND_URL existentes. No agrega dependencias. Las contraseñas se derivan con scrypt y sal aleatoria; los tokens de confirmación se guardan como SHA-256. Tras 5 contraseñas incorrectas se bloquea ese acceso durante 15 minutos. El reenvío al mismo correo tiene una espera de 60 segundos y reemplaza la invitación anterior.
+
+Validación local: `npm run build` y `node scripts/password-auth.cjs`. La prueba requiere base local, crea y elimina solo sus fixtures y sustituye el envío por un mock; no envía correos reales. La entrega real debe verificarse con una cuenta nueva desde producción.

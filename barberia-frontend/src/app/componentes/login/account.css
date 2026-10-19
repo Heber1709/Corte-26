@@ -1,0 +1,1 @@
+.account-form{display:grid;gap:12px;width:100%;text-align:left}.account-form label{display:grid;gap:6px;font-size:13px}.account-form input{width:100%;padding:12px;border:1px solid #73614a;border-radius:8px;background:#12110f;color:white}.account-form small{color:#c7c0b4}.account-form button:disabled{opacity:.5}

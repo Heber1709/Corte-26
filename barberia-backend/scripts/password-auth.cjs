@@ -1,0 +1,38 @@
+require('dotenv').config({quiet:true});
+const assert=require('node:assert/strict');
+const {PrismaClient}=require('@prisma/client');
+const {PasswordAuthService,hashPassword,matchesPassword}=require('../dist/src/auth/password-auth.service');
+const mail=require('../dist/src/common/invitation-mail');
+const db=new PrismaClient();
+const email=`registration-test-${Date.now()}@example.invalid`;
+let link, sends=0;
+mail.sendRegistrationMail=async(to,url)=>{assert.equal(to,email);link=url;sends++};
+const service=new PasswordAuthService(db,{generateToken:user=>({id:user.id,role:user.role})});
+(async()=>{
+ assert(['localhost','127.0.0.1'].includes(new URL(process.env.DATABASE_URL).hostname),'Local DB only');
+ const password='Una clave de prueba 123!';
+ const hash=await hashPassword(password);
+ assert(await matchesPassword(password,hash)); assert(!await matchesPassword('incorrect password',hash));
+ await assert.rejects(()=>service.register({email,password:'short',name:'Test'}));
+ await service.register({email,password,name:'Test'});
+ await service.register({email,password,name:'Test'});assert.equal(sends,1);
+ assert.equal(await db.user.findUnique({where:{email}}),null);
+ await assert.rejects(()=>service.login({email,password}));
+ const token=new URLSearchParams(new URL(link).hash.slice(1)).get('registration');
+ const pending=await db.emailRegistration.findUnique({where:{email}});assert.notEqual(pending.tokenHash,token);assert.notEqual(pending.passwordHash,password);
+ await db.emailRegistration.update({where:{email},data:{expiresAt:new Date(0)}});
+ await assert.rejects(()=>service.accept(token));
+ await db.emailRegistration.update({where:{email},data:{expiresAt:new Date(Date.now()+60000)}});
+ await service.accept(token);await assert.rejects(()=>service.accept(token));
+ const result=await service.login({email,password});assert.equal(result.role,'CLIENT');
+ for(let i=0;i<5;i++)await assert.rejects(()=>service.login({email,password:'wrong password test'}));
+ await assert.rejects(()=>service.login({email,password}));
+ await db.passwordCredential.update({where:{userId:result.id},data:{lockedUntil:new Date(0)}});
+ await service.login({email,password});
+ await db.user.update({where:{id:result.id},data:{accountStatus:'BLOCKED'}});
+ await assert.rejects(()=>service.login({email,password}));
+ await service.register({email,password,name:'Existing'});assert.equal(sends,1);
+ console.log('PASS: hashing, validation, mail cooldown, pending denial, expiry, one-use, client role, lockout, blocked account, existing account protected');
+})().catch(e=>{console.error(e.message);process.exitCode=1}).finally(async()=>{
+ await db.emailRegistration.deleteMany({where:{email}});await db.user.deleteMany({where:{email}});await db.$disconnect();
+});

@@ -28,3 +28,18 @@ export async function sendGmailInvitation(to: string, link: string) {
     if (!info.accepted?.length || info.rejected?.length) throw new Error('Correo no aceptado por Gmail');
   } finally { transporter.close(); }
 }
+
+export async function sendRegistrationMail(to: string, link: string) {
+  const subject = 'Confirma tu registro · Barbería App';
+  const text = 'Solicitaste crear una cuenta en Barbería App. Acepta la invitación y luego inicia sesión con tu correo y contraseña. Vence en 24 horas. Si no solicitaste esta cuenta, ignora este mensaje.\n\n' + link;
+  if (invitationProvider() === 'gmail') {
+    const config = gmailConfig(); const transporter = nodemailer.createTransport(config);
+    try { const info = await transporter.sendMail({ from: { name: 'Barbería App', address: config.auth.user }, to, subject, text });
+      if (!info.accepted?.length || info.rejected?.length) throw new Error('Correo rechazado');
+    } catch { throw new ServiceUnavailableException('No se pudo enviar la invitación. Inténtalo más tarde.'); }
+    finally { transporter.close(); }
+  } else {
+    const response = await fetch('https://api.resend.com/emails', { method: 'POST', signal: AbortSignal.timeout(15000), headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ from: process.env.INVITATION_FROM, to: [to], subject, text }) });
+    if (!response.ok) throw new ServiceUnavailableException('No se pudo enviar la invitación.');
+  }
+}

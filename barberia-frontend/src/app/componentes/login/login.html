@@ -38,7 +38,22 @@
 </div>
 <dialog #loginDialog class="login-dialog" aria-labelledby="login-title" (click)="onDialogClick($event)" (close)="onDialogClose()">
  <div class="glass-card"><button class="modal-close" aria-label="Cerrar inicio de sesión" (click)="closeLogin()">×</button><div class="avatar-container"><img src="barber-pole.png" alt="" class="barber-img"></div><h2 id="login-title" class="title">Bienvenido a Barbería App</h2><p class="top-message">Inicia sesión con tu cuenta verificada</p>
-    <button class="google-btn" (click)="loginWithGoogle()">
+    <p role="status" aria-live="polite">{{ message }}</p>
+@if (registrationToken) {
+<p>Confirma que solicitaste esta cuenta para activar tu acceso.</p>
+<button class="primary" [disabled]="busy" (click)="acceptRegistration()">{{ busy ? 'Confirmando…' : 'Aceptar invitación' }}</button>
+} @else {
+<form class="account-form" (ngSubmit)="submitAccount()">
+@if (mode === 'register') { <label>Nombre<input name="name" [(ngModel)]="name" required maxlength="100" autocomplete="name"></label> }
+<label>Usuario (correo electrónico)<input type="email" name="email" [(ngModel)]="email" required maxlength="254" autocomplete="username"></label>
+<label>Contraseña<input type="password" name="password" [(ngModel)]="password" required minlength="12" maxlength="128" [autocomplete]="mode === 'register' ? 'new-password' : 'current-password'"></label>
+@if (mode === 'register') { <small>Usa entre 12 y 128 caracteres. Te enviaremos un enlace para confirmar tu correo.</small> }
+<button class="primary" type="submit" [disabled]="busy">{{ busy ? 'Procesando…' : mode === 'register' ? 'Enviar invitación de registro' : 'Entrar' }}</button>
+</form>
+<button class="text-link" [disabled]="busy" (click)="switchMode()">{{ mode === 'login' ? 'Crear cuenta con correo' : 'Ya tengo cuenta' }}</button>
+<p>O continúa con Google</p>
+}
+<button class="google-btn" (click)="loginWithGoogle()">
       <svg class="google-icon" viewBox="0 0 24 24">
         <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
         <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.18v3.15C3.17 21.32 7.23 24 12 24z"/>

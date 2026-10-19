@@ -1,3 +1,4 @@
+import { PasswordAuthService } from './password-auth.service';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -15,7 +16,7 @@ import { GoogleStrategy } from './google.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, GoogleStrategy],
+  providers: [PasswordAuthService, AuthService, JwtStrategy, GoogleStrategy],
   exports: [JwtStrategy, GoogleStrategy, PassportModule],
 })
 export class AuthModule {}
