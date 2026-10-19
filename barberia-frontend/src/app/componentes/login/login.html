@@ -1,18 +1,43 @@
-<div class="login-container">
-  <div class="glass-card">
-    
-    <!-- Contenedor del Logo -->
-    <div class="avatar-container">
-      <img src="barber-pole.png" alt="Logo Barbería" class="barber-img">
-    </div>
-
-    <!-- Título principal -->
-    <h2 class="title">Bienvenido a Corte-26</h2>
-
-    <!-- Mensaje superior -->
-    <p class="top-message">Inicia sesión con tu cuenta verificada</p>
-
-    <!-- Botón de Google OAuth -->
+<div class="landing" id="inicio">
+  <header class="header">
+    <a class="brand" href="/login#inicio" aria-label="Corte 26, inicio"><span class="brand-mark">26<span>✂</span></span><span>CORTE<span class="brand-number">26</span><small>BARBERÍA & ESTILO</small></span></a>
+    <nav aria-label="Navegación principal"><a href="/login#estilos">Los cortes</a><a href="/login#beneficios">Ofertas & beneficios</a><a href="/login#experiencia">La experiencia</a></nav>
+    <button class="login-trigger" (click)="openLogin()">Iniciar sesión <span aria-hidden="true">↗</span></button>
+  </header>
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-image" role="img" aria-label="Detalle de un corte degradado en una barbería de estilo clásico"></div>
+      <div class="hero-shade"></div>
+      <div class="hero-copy"><p class="eyebrow"><span></span> EL ESTILO ESTÁ EN LOS DETALLES</p>
+        <h1 id="hero-title">No es solo<br>un corte.<br><em>Es tu sello.</em></h1>
+        <p class="hero-description">Cortes con carácter. Barbas con precisión.<br>Tu próximo look empieza en Corte 26.</p>
+        <div class="hero-actions"><button class="primary" (click)="openLogin()">Reserva tu próximo corte <span aria-hidden="true">↗</span></button><a class="text-link" href="/login#estilos">Encuentra tu estilo <span aria-hidden="true">↓</span></a></div>
+        <div class="hero-note"><span class="note-line"></span> TRADICIÓN EN LAS MANOS. ESTILO EN CADA CORTE.</div>
+      </div>
+      <div class="hero-caption"><span>01 / EL ARTE DEL DETALLE</span><span>PRECISIÓN. TEXTURA. ACTITUD.</span></div>
+    </section>
+    <div class="service-strip" aria-label="Especialidades"><span>CORTES A TU MEDIDA</span><i>✦</i><span>BARBA & PERFILADO</span><i>✦</i><span>ASESORÍA DE ESTILO</span><i>✦</i><span>CLUB DE LEALTAD</span></div>
+    <section class="section cuts" id="estilos" aria-labelledby="cuts-title">
+      <div class="section-heading"><div><p class="eyebrow">INSPIRACIÓN PARA TU PRÓXIMA VISITA</p><h2 id="cuts-title">Un estilo que <em>hable de ti.</em></h2></div><p>Elige tu referencia. Nosotros ponemos<br>la atención en cada detalle.</p></div>
+      <div class="cut-grid">@for (cut of cuts; track cut.image; let i = $index) {
+        <article class="cut-card"><div class="cut-photo"><svg [attr.viewBox]="cut.crop.join(' ')" preserveAspectRatio="xMidYMid slice" role="img" [attr.aria-label]="cutNames[i]">
+          <image [attr.href]="cut.image" [attr.width]="cut.width" [attr.height]="cut.height" /></svg><span class="cut-index">0{{ i + 1 }}</span></div>
+          <div class="cut-info"><div><small>{{ cutTags[i] }}</small><h3>{{ cutNames[i] }}</h3></div><button (click)="openLogin()" [attr.aria-label]="'Reservar: ' + cutNames[i]">↗</button></div>
+          <details><summary>Créditos de la referencia</summary><p>{{ cut.author }} · <a [href]="cut.source" target="_blank" rel="noopener">Fuente</a> · <a [href]="cut.licenseUrl" target="_blank" rel="noopener">{{ cut.license }}</a>. Encuadre adaptado.</p></details>
+        </article>
+      }</div>
+    </section>
+    <section class="benefits section" id="beneficios" aria-labelledby="benefits-title"><div class="benefit-intro"><p class="eyebrow">OFERTAS & BENEFICIOS</p><h2 id="benefits-title">Buen estilo.<br><em>Más motivos<br>para volver.</em></h2><p>Conoce los servicios disponibles y los beneficios de tu cuenta antes de reservar.</p></div>
+      <article class="benefit-card club"><span class="benefit-number">01 / CLUB CORTE 26</span><span class="benefit-symbol" aria-hidden="true">✦</span><h3>Tu lealtad<br>tiene recompensa.</h3><p>Consulta tus puntos y descubre los servicios disponibles para canjear en el club de fidelidad.</p><button class="text-link" (click)="openLogin()">Conocer mis beneficios <span>↗</span></button></article>
+      <article class="benefit-card"><span class="benefit-number">02 / TU PRÓXIMO LOOK</span><span class="benefit-symbol" aria-hidden="true">✂</span><h3>Elige el corte.<br>Encuentra tu hora.</h3><p>Consulta precios, servicios y disponibilidad actualizados dentro de tu cuenta.</p><button class="text-link" (click)="openLogin()">Ver servicios y reservar <span>↗</span></button></article>
+    </section>
+    <section class="experience section" id="experiencia"><div><p class="eyebrow">BARBERÍA TRADICIONAL, A TU MANERA</p><h2>El cuidado se nota.<br><em>El estilo se queda.</em></h2></div><div class="experience-details"><p>Un espacio para encontrar tu estilo, cuidar los detalles y hacer de cada visita parte de tu rutina.</p><div class="detail-row"><span>01</span><p><strong>Inspiración personalizada</strong>Analiza tu foto y descubre recomendaciones de cortes con nuestra herramienta de IA.</p></div><div class="detail-row"><span>02</span><p><strong>Tu visita, organizada</strong>Elige tu servicio, consulta los barberos disponibles y agenda desde tu cuenta.</p></div></div></section>
+    <section class="closing"><p class="eyebrow">TU PRÓXIMO CORTE TE ESPERA</p><h2>Haz espacio para<br><em>tu mejor versión.</em></h2><button class="primary" (click)="openLogin()">Agendar mi visita <span>↗</span></button></section>
+  </main>
+  <footer><a class="footer-brand" href="/login#inicio">CORTE 26<span>BARBERÍA & CLUB DE LEALTAD</span></a><p>Tradición, precisión y estilo propio.</p><a href="/login#inicio">Volver arriba ↑</a></footer>
+</div>
+<dialog #loginDialog class="login-dialog" aria-labelledby="login-title" (click)="onDialogClick($event)" (close)="onDialogClose()">
+ <div class="glass-card"><button class="modal-close" aria-label="Cerrar inicio de sesión" (click)="closeLogin()">×</button><div class="avatar-container"><img src="barber-pole.png" alt="" class="barber-img"></div><h2 id="login-title" class="title">Bienvenido a Corte-26</h2><p class="top-message">Inicia sesión con tu cuenta verificada</p>
     <button class="google-btn" (click)="loginWithGoogle()">
       <svg class="google-icon" viewBox="0 0 24 24">
         <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
@@ -23,8 +48,6 @@
       <span>Continuar con Google</span>
     </button>
 
-    <!-- Mensaje inferior -->
-    <p class="bottom-message">Barbería Tradicional & Club de Lealtad</p>
 
-  </div>
-</div>
+<p class="bottom-message">Barbería Tradicional & Club de Lealtad</p></div>
+</dialog>

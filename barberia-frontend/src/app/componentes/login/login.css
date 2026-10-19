@@ -1,119 +1,112 @@
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  width: 100vw;
-  background: #0d0914;
-  background-image: 
-    radial-gradient(circle at 75% 25%, rgba(162, 28, 175, 0.22) 0%, transparent 50%),
-    radial-gradient(circle at 25% 75%, rgba(30, 58, 138, 0.25) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(12, 10, 20, 0.95) 0%, transparent 100%);
-  position: fixed;
-  top: 0;
-  left: 0;
-  margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+:host{display:block;background:#12110f;color:#eee8dd;font-family:Arial,Helvetica,sans-serif}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid #d6b77b;outline-offset:5px}
+.header{height:100px;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:0 5%;border-bottom:1px solid #ffffff16;background:#12110f}
+.brand{display:flex;align-items:center;gap:14px;font-size:25px;font-weight:800;letter-spacing:2px}
+.brand-number{color:#c9a46c}
+.brand small{display:block;font-size:8px;letter-spacing:3px;margin-top:5px;font-weight:400}
+.brand-mark{width:48px;height:54px;border:1px solid #a3875c;display:grid;place-content:center;text-align:center;color:#c9a46c;font-family:Georgia,serif;font-size:22px}
+.brand-mark span{font-size:15px;line-height:12px}
+nav{display:flex;gap:30px;font-size:12px;color:#c3bbae}
+.login-trigger{background:transparent;border:1px solid #73614a;padding:13px 20px;color:#eee8dd;font-size:12px}
+.login-trigger span{margin-left:20px;color:#d6b77b}
+.hero{position:relative;min-height:700px;display:flex;align-items:center;isolation:isolate;overflow:hidden}
+.hero-image,.hero-shade{position:absolute;inset:0;z-index:-1}
+.hero-image{background:url('/landing/hero-barber.png') center/cover no-repeat;background-color:#24201b}
+.hero-shade{background:linear-gradient(90deg,rgba(13,12,10,.94),rgba(13,12,10,.6) 38%,transparent 76%),linear-gradient(0deg,#12110f,transparent 25%)}
+.hero-copy{padding:55px 7% 100px;max-width:850px}
+.eyebrow{font-size:10px;font-weight:600;letter-spacing:2.5px;color:#c9a46c;margin:0 0 24px;line-height:1.7}
+.eyebrow span{display:inline-block;width:28px;height:1px;background:#c9a46c;vertical-align:middle;margin-right:10px}
+h1{font-family:Georgia,'Times New Roman',serif;font-size:clamp(62px,6.6vw,100px);font-weight:400;line-height:1.02;letter-spacing:-4px;margin:0 0 27px}
+em{font-weight:400;color:#c9a46c}
+.hero-description{font-size:15px;line-height:1.85;color:#c7c0b4}
+.hero-actions{display:flex;align-items:center;gap:26px;margin-top:30px}
+.primary{background:#e53252;color:white;border:1px solid #e53252;padding:17px 23px;font-size:12px;font-weight:600}
+.primary span{margin-left:24px}
+.text-link{background:none;border:0;border-bottom:1px solid #695b43;color:#eee8dd;padding:10px 0;font-size:12px;display:inline-flex;gap:22px;align-items:center}
+.hero-note{display:flex;align-items:center;gap:12px;margin-top:44px;color:#a69c8c;letter-spacing:1.5px;font-size:8px}
+.note-line{width:32px;height:1px;background:#6c5a40}
+.hero-caption{position:absolute;bottom:27px;left:7%;right:7%;display:flex;justify-content:space-between;font-size:8px;letter-spacing:2px;color:#aaa091}
+.service-strip{display:flex;align-items:center;justify-content:space-around;gap:18px;padding:26px 6%;border-block:1px solid #55452f;background:#1c1914;font-size:10px;letter-spacing:2px}
+.service-strip i{color:#c9a46c;font-size:16px}
+.section{padding:88px 7%;scroll-margin-top:25px}
+.section-heading{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:35px}
+h2{font-family:Georgia,serif;font-size:clamp(34px,3.5vw,52px);line-height:1.15;font-weight:400;letter-spacing:-1.5px;margin:0}
+.section-heading>p,.benefit-intro>p,.experience-details>p{color:#a89e90;font-size:13px;line-height:1.85}
+.section-heading .eyebrow{margin-bottom:12px}
+.cut-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px}
+.cut-photo{height:320px;position:relative;background:#29251e;overflow:hidden}
+.cut-photo svg{width:100%;height:100%;filter:saturate(.55);overflow:hidden}
+.cut-index{position:absolute;left:16px;top:16px;font:italic 20px Georgia,serif;color:white;text-shadow:0 1px 8px #000}
+.cut-info{display:flex;align-items:center;justify-content:space-between;margin:20px 0 14px}
+.cut-info small{font-size:8px;letter-spacing:1.6px;color:#a18c6d}
+.cut-info h3{font:24px Georgia,serif;margin:9px 0}
+.cut-info button{border:1px solid #514536;background:transparent;color:#c9a46c;border-radius:50%;width:38px;height:38px}
+.cut-card details{font-size:10px;color:#9b9183;line-height:1.6}
+.cut-card summary{cursor:pointer}
+.cut-card details a{text-decoration:underline}
+.benefits{display:grid;grid-template-columns:1fr 1fr 1fr;gap:25px;background:#191713;border-block:1px solid #30291f}
+.benefit-intro{padding-right:26px}
+.benefit-intro>p{margin-top:25px}
+.benefit-card{border:1px solid #51422c;padding:30px;display:flex;flex-direction:column;align-items:start}
+.benefit-card.club{background:linear-gradient(135deg,#352b1d,#201b15)}
+.benefit-number{font-size:9px;letter-spacing:1.7px;color:#b9a486}
+.benefit-symbol{font-size:33px;color:#c9a46c;margin:26px 0 20px}
+.benefit-card h3{font:30px/1.2 Georgia,serif;margin:0 0 16px}
+.benefit-card p{font-size:13px;line-height:1.8;color:#b4a999;margin-bottom:25px}
+.benefit-card .text-link{margin-top:auto}
+.experience{display:grid;grid-template-columns:1fr 1fr;gap:90px}
+.detail-row{display:flex;gap:20px;border-top:1px solid #393126;padding-top:15px;margin-top:22px}
+.detail-row>span{color:#c9a46c;font:20px Georgia,serif}
+.detail-row p{margin:0;color:#a89e90;font-size:12px;line-height:1.8}
+.detail-row strong{display:block;color:#e3d9c7;font-size:14px;margin-bottom:5px}
+.closing{padding:74px 20px;text-align:center;background:radial-gradient(ellipse at bottom,#342719,#151310 70%);border-top:1px solid #403321}
+.closing .primary{margin-top:28px}
+footer{padding:33px 7%;display:flex;justify-content:space-between;align-items:center;gap:24px;border-top:1px solid #352c21;color:#9a8c78;font-size:11px}
+.footer-brand{font-size:20px;color:#d5bb94;letter-spacing:2px}
+.footer-brand span{display:block;font-size:7px;letter-spacing:2px;margin-top:6px}
+.login-dialog{border:1px solid #65513b;border-radius:24px;padding:0;width:min(440px,calc(100% - 32px));max-height:90vh;color:white;background:#17131deF;box-shadow:0 30px 100px #000b}
+.login-dialog::backdrop{background:#080604b8;backdrop-filter:blur(7px)}
+.glass-card{position:relative;padding:42px 30px;display:flex;align-items:center;flex-direction:column;text-align:center}
+.modal-close{position:absolute;right:15px;top:10px;border:0;background:none;color:#d5cbbd;font-size:29px}
+.avatar-container{width:72px;height:72px;border-radius:50%;background:#ffffff0d;border:1px solid #ffffff1a;display:grid;place-items:center;margin-bottom:20px}
+.barber-img{width:60%}
+.title{font:600 26px/1.25 Arial,sans-serif;letter-spacing:-.5px}
+.top-message{color:#b1a9b8;font-size:13px;margin:16px 0 25px}
+.google-btn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;border:0;border-radius:16px;padding:15px;background:#fafafa;color:#1f2937;font-weight:600}
+.google-icon{width:20px;height:20px}
+.bottom-message{color:#b5a1df;font-size:12px;margin:25px 0 0}
+@media(max-width:650px){.header{height:80px;padding:0 6%;gap:10px}
+.brand{font-size:20px;gap:9px}
+.brand-mark{width:34px;height:42px;font-size:18px}
+.brand small{font-size:6px}
+.header nav{display:none}
+.login-trigger{padding:11px;font-size:11px}
+.login-trigger span{margin-left:8px}
+.hero{min-height:680px}
+.hero-image{background-position:62% center}
+.hero-shade{background:linear-gradient(90deg,#0d0c0aeb,#0d0c0a72),linear-gradient(0deg,#12110f,transparent 65%)}
+.hero-copy{padding:48px 7% 85px}
+h1{letter-spacing:-2px}
+.hero-actions{align-items:start;flex-direction:column;gap:12px}
+.hero-description{font-size:14px}
+.hero-caption span:last-child{display:none}
+.service-strip{display:grid;grid-template-columns:1fr 1fr;text-align:center;font-size:8px;gap:20px}
+.service-strip i{display:none}
+.section{padding:56px 7%}
+.section-heading{display:block}
+.cut-grid{grid-template-columns:1fr;gap:28px}
+.cut-photo{height:340px}
+.benefits{grid-template-columns:1fr}
+.benefit-intro h2 br{display:none}
+.benefit-card{padding:28px}
+.experience{grid-template-columns:1fr;gap:25px}
+.closing{padding:55px 7%}
+footer{flex-wrap:wrap;padding:28px 7%}
+footer p{display:none}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}
 }
 
-.glass-card {
-  width: 420px;
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 30px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 40px 32px;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6),
-              inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-.avatar-container {
-  width: 72px;
-  height: 72px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  overflow: hidden; /* Asegura que la imagen no rebase los bordes circulares */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-/* Estilos corregidos para que la imagen no se vea gigante */
-.barber-img {
-  width: 60%;
-  height: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-}
-
-.scissors-emoji {
-  font-size: 24px;
-}
-
-.title {
-  color: #ffffff;
-  font-size: 28px;
-  font-weight: 600;
-  margin: 0 0 8px 0;
-  letter-spacing: -0.5px;
-}
-
-/* Mensaje colocado ARRIBA del botón */
-.top-message {
-  color: #9ca3af;
-  font-size: 13px;
-  margin-bottom: 24px;
-  text-align: center;
-  font-weight: 400;
-}
-
-.google-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  width: 100%;
-  background: rgba(255, 255, 255, 0.95);
-  color: #1f2937;
-  border: none;
-  border-radius: 16px;
-  padding: 14px 20px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-}
-
-.google-btn:hover {
-  background: #ffffff;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
-}
-
-.google-btn:active {
-  transform: translateY(0);
-}
-
-.google-icon {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-}
-
-/* Mensaje colocado ABAJO del botón */
-.bottom-message {
-  margin-top: 24px;
-  color: #8b5cf6;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.3px;
-  text-align: center;
-}
