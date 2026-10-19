@@ -4,7 +4,7 @@ export function gmailConfig() {
   const user = process.env.GMAIL_USER?.trim();
   const pass = process.env.GMAIL_APP_PASSWORD?.replace(/\s/g, '');
   if (!user || !pass) throw new ServiceUnavailableException('Falta configurar GMAIL_USER y GMAIL_APP_PASSWORD en el backend.');
-  return { host: 'smtp.gmail.com', port: 465, secure: true,
+  return { host: 'smtp.gmail.com', port: 587, secure: false, requireTLS: true,
     auth: { user, pass }, connectionTimeout: 10000, greetingTimeout: 10000, socketTimeout: 15000 };
 }
 export async function sendGmailInvitation(to: string, link: string) {

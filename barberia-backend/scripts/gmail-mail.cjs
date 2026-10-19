@@ -5,7 +5,7 @@ const { gmailConfig, sendGmailInvitation } = require('../dist/src/common/invitat
   delete process.env.GMAIL_USER; delete process.env.GMAIL_APP_PASSWORD;
   assert.throws(gmailConfig, /Falta configurar/);
   process.env.GMAIL_USER = 'sender@example.invalid'; process.env.GMAIL_APP_PASSWORD = 'abcd efgh ijkl mnop';
-  const config = gmailConfig(); assert.equal(config.auth.pass, 'abcdefghijklmnop'); assert.equal(config.secure, true); assert.equal(config.port, 465);
+  const config = gmailConfig(); assert.equal(config.auth.pass, 'abcdefghijklmnop'); assert.equal(config.secure, false); assert.equal(config.requireTLS, true); assert.equal(config.port, 587);
   let closed = false;
   nodemailer.createTransport = () => ({ sendMail: async mail => {
     assert.equal(mail.from.address, config.auth.user); assert.equal(mail.to, 'target@example.invalid');

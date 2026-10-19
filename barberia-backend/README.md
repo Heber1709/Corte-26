@@ -89,4 +89,4 @@ Crear una cuenta administradora envía una invitación de 48 horas. Hasta acepta
 
 ### Envio con Gmail sin dominio propio
 
-Configurar MAIL_PROVIDER=gmail, GMAIL_USER (cuenta remitente) y GMAIL_APP_PASSWORD (contraseña de aplicación de Google, nunca la contraseña normal). Para Gmail no se usan RESEND_API_KEY ni INVITATION_FROM. La conexión usa SMTP con TLS en smtp.gmail.com:465. Guardar las variables tanto en .env local como en Vercel/backend y volver a desplegar. FRONTEND_URL en producción debe apuntar a https://barberia-corte-26.vercel.app para que el destinatario pueda aceptar desde su dispositivo.
+Configurar MAIL_PROVIDER=gmail, GMAIL_USER (cuenta remitente) y GMAIL_APP_PASSWORD (contraseña de aplicación de Google, nunca la contraseña normal). Para Gmail no se usan RESEND_API_KEY ni INVITATION_FROM. La conexión usa SMTP con STARTTLS obligatorio en smtp.gmail.com:587. Guardar las variables tanto en .env local como en Vercel/backend y volver a desplegar. FRONTEND_URL en producción debe apuntar a https://barberia-corte-26.vercel.app para que el destinatario pueda aceptar desde su dispositivo.
