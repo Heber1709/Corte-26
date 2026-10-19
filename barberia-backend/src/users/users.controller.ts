@@ -29,6 +29,9 @@ export class UsersController {
   @Delete('administrators/:id') revokeAdministrator(@CurrentUser() user: User, @Param('id', ParseIntPipe) id: number) {
     return this.usersService.revokeAdministrator(user, id);
   }
+  @Post('administrators/accept') acceptAdministrator(@CurrentUser() user: User, @Body('token') token: string) {
+    return this.usersService.acceptAdministrator(user, token);
+  }
   @Get('barbers') getBarbers() {
     return this.usersService.getBarbers();
   }

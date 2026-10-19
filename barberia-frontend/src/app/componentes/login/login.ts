@@ -14,7 +14,7 @@ export class LoginComponent implements OnInit {
       new URLSearchParams(this.route.snapshot.fragment || '').get('token') ||
       this.route.snapshot.queryParamMap.get('token');
     if (token) this.auth.saveToken(token);
-    if (this.auth.isLoggedIn()) this.router.navigate(['/dashboard'], { replaceUrl: true });
+    if (this.auth.isLoggedIn()) this.router.navigate([sessionStorage.getItem('adminInvitation') ? '/aceptar-invitacion' : '/dashboard'], { replaceUrl: true });
   }
   loginWithGoogle() {
     window.location.href = `${environment.apiUrl}/auth/google`;

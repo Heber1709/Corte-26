@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Api, Person, errorMessage } from '../core/services/api';
 import { Navigation } from './navigation';
@@ -28,20 +28,24 @@ import { Navigation } from './navigation';
             }
           </fieldset>
           <div class="actions">
-            <button class="btn-hero-red" [disabled]="form.invalid || busy()">{{ editing ? 'Guardar permisos' : 'Agregar administrador' }}</button>
+            <button class="btn-hero-red" [disabled]="form.invalid || busy()">{{ editing ? 'Guardar permisos' : 'Crear y enviar invitación' }}</button>
             <button type="button" class="btn-hero-outline" [disabled]="busy()" (click)="reset()">Limpiar formulario</button>
           </div>
         </form>
-        <p>Se utilizará el inicio de sesión con Google. No se envían invitaciones por correo. Si la cuenta ya existe, se conservarán sus datos.</p>
+        <p>Al crear un administrador se envía una invitación por correo. Sus permisos se activan cuando acepta con su cuenta de Google. El enlace vence en 48 horas.</p>
         @for (admin of admins(); track admin.id) {
           <article class="admin-row">
             <strong>{{ admin.name }}</strong> · {{ admin.email }}
             @if (admin.isSuperAdmin) { <span class="gold-badge">Superadministrador · todos los permisos</span> }
             @else {
+              <button type="button" class="invitation-status" [class.accepted]="admin.adminInviteStatus === 'ACCEPTED'" [attr.aria-label]="status(admin)" aria-disabled="true">{{ status(admin) }}</button>
               <p>{{ labels(admin.permissions || []) }}</p>
+              @if (admin.adminInviteStatus && admin.adminInviteStatus !== 'ACCEPTED') {
+                <button type="button" class="btn-hero-outline" [disabled]="busy()" (click)="resend(admin)">Reenviar invitación</button>
+              }
               <div class="actions">
                 <button type="button" class="btn-hero-outline" [disabled]="busy()" (click)="edit(admin)">Editar permisos</button>
-                <button type="button" class="btn-hero-outline" [disabled]="busy()" (click)="revoke(admin)">Quitar acceso de administrador</button>
+                <button type="button" class="btn-hero-outline" [disabled]="busy()" (click)="revoke(admin)">Quitar acceso / cancelar solicitud</button>
               </div>
             }
           </article>
@@ -50,11 +54,21 @@ import { Navigation } from './navigation';
     }
   `,
   styleUrls: ['../componentes/dashboard/dashboard.css', './forms.css'],
-  styles: [':host { min-height: 0; } .permission { display: inline-flex; align-items: center; gap: .5rem; margin: .5rem 1rem .5rem 0; } .permission input { width: auto; } .admin-row { padding: 1rem 0; border-bottom: 1px solid #443526; overflow-wrap: anywhere; }'],
+  styles: [':host { min-height: 0; } .invitation-status { display:block; margin:.6rem 0; padding:.5rem .8rem; border:1px solid #665848; border-radius:6px; color:#c2b7aa; background:#292520; opacity:.65; cursor:default; } .invitation-status.accepted { background:#e83254; color:white; opacity:1; border-color:#e83254; } .permission { display: inline-flex; align-items: center; gap: .5rem; margin: .5rem 1rem .5rem 0; } .permission input { width: auto; } .admin-row { padding: 1rem 0; border-bottom: 1px solid #443526; overflow-wrap: anywhere; }'],
 })
-export class Administration implements OnInit {
+export class Administration implements OnInit, OnDestroy {
   me = signal<Person | null>(null);
-  admins = signal<Person[]>([]);
+  admins = signal<(Person & { adminInviteStatus?: string; adminInviteExpires?: string })[]>([]);
+  private refreshTimer?: ReturnType<typeof setInterval>;
+  ngOnDestroy() { clearInterval(this.refreshTimer); }
+  status(admin: any) {
+    if (admin.adminInviteStatus === 'ACCEPTED') return 'Solicitud aceptada';
+    if (admin.adminInviteStatus === 'FAILED') return 'Error de envío';
+    if (admin.adminInviteExpires && new Date(admin.adminInviteExpires).getTime() < Date.now()) return 'Solicitud vencida';
+    if (admin.adminInviteStatus === 'SENT') return 'Solicitud enviada';
+    if (admin.adminInviteStatus === 'SENDING') return 'Enviando solicitud';
+    return 'Administrador activo';
+  }
   busy = signal(false);
   error = signal('');
   message = signal('');
@@ -69,7 +83,7 @@ export class Administration implements OnInit {
   ];
   constructor(private api: Api) {}
   ngOnInit() {
-    this.api.get<Person>('/users/me').subscribe({ next: user => { this.me.set(user); if (user.isSuperAdmin && user.role === 'ADMIN') this.load(); }, error: () => {} });
+    this.api.get<Person>('/users/me').subscribe({ next: user => { this.me.set(user); if (user.isSuperAdmin && user.role === 'ADMIN') { this.load(); this.refreshTimer = setInterval(() => { if (!document.hidden && !this.busy()) this.load(); }, 10000); } }, error: () => {} });
   }
   load() { this.api.get<Person[]>('/users/administrators').subscribe({ next: users => this.admins.set(users), error: e => this.error.set(errorMessage(e)) }); }
   reset() { this.name = ''; this.email = ''; this.selected = {}; this.editing = false; }
@@ -78,11 +92,12 @@ export class Administration implements OnInit {
   save() {
     if (this.busy()) return;
     this.busy.set(true); this.error.set(''); this.message.set('');
-    this.api.post('/users/administrators', { name: this.name.trim(), email: this.email.trim(), permissions: this.options.filter(p => this.selected[p.key]).map(p => p.key) }).subscribe({
-      next: () => { this.busy.set(false); this.reset(); this.message.set('Administrador guardado. Los permisos se aplican en las siguientes solicitudes; recarga la página para actualizar los botones.'); this.load(); },
+    this.api.post<any>('/users/administrators', { name: this.name.trim(), email: this.email.trim(), permissions: this.options.filter(p => this.selected[p.key]).map(p => p.key) }).subscribe({
+      next: result => { this.busy.set(false); this.reset(); this.message.set(result.status === 'SENT' ? 'Solicitud enviada. El acceso se activará cuando la persona la acepte.' : 'Permisos actualizados.'); this.load(); },
       error: e => { this.busy.set(false); this.error.set(errorMessage(e)); },
     });
   }
+  resend(user: Person) { this.edit(user); this.save(); }
   revoke(user: Person) {
     if (!confirm('¿Quitar el acceso de administrador a ' + user.email + '? Su cuenta seguirá como cliente.')) return;
     this.busy.set(true); this.error.set('');

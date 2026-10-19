@@ -1,0 +1,54 @@
+// Ejecutar solo contra una base local de pruebas; no envía correos reales.
+require('dotenv').config({ quiet: true });
+const assert = require('node:assert/strict');
+const { PrismaClient } = require('@prisma/client');
+const { UsersService } = require('../dist/src/users/users.service');
+if (!['localhost','127.0.0.1','::1'].includes(new URL(process.env.DATABASE_URL).hostname)) throw Error('Solo base local');
+const prisma = new PrismaClient();
+const prefix = 'invite-test-' + Date.now();
+const email = suffix => prefix + suffix + '@example.invalid';
+const originalFetch = global.fetch;
+const saved = { key: process.env.RESEND_API_KEY, from: process.env.INVITATION_FROM };
+let token, calls = 0;
+(async () => {
+  const owner = await prisma.user.create({ data: { email: email('owner'), name: 'Test', role: 'ADMIN', isSuperAdmin: true } });
+  const other = await prisma.user.create({ data: { email: email('other'), name: 'Test' } });
+  const service = new UsersService(prisma);
+  const data = { email: email('target'), name: 'Invitado', permissions: ['CLIENTS'] };
+  delete process.env.RESEND_API_KEY;
+  await assert.rejects(service.saveAdministrator(owner, data), /Falta configurar/);
+  assert.equal(await prisma.user.count({ where: { email: data.email } }), 0);
+  process.env.RESEND_API_KEY = 'test'; process.env.INVITATION_FROM = 'test@example.invalid';
+  global.fetch = async (_, options) => { calls++; token = JSON.parse(options.body).text.match(/invitation=([a-f0-9]{64})/)[1]; return { ok: true, json: async () => ({ id: 'test' }) }; };
+  await assert.rejects(service.saveAdministrator(other, data), /superadministrador/);
+  await service.saveAdministrator(owner, data);
+  let target = await prisma.user.findUnique({ where: { email: data.email } });
+  assert.equal(target.role, 'CLIENT'); assert.equal(target.adminInviteStatus, 'SENT'); assert.notEqual(target.adminInviteHash, token);
+  await assert.rejects(service.acceptAdministrator(other, token));
+  await service.acceptAdministrator(target, token);
+  await assert.rejects(service.acceptAdministrator(target, token));
+  target = await prisma.user.findUnique({ where: { id: target.id } });
+  assert.equal(target.role, 'ADMIN'); assert.equal(target.adminInviteStatus, 'ACCEPTED');
+  await service.saveAdministrator(owner, { ...data, permissions: ['BARBERS'] });
+  assert.equal(calls, 1); // Editar permisos no reenvía ni desactiva una cuenta activa.
+  await service.revokeAdministrator(owner, target.id);
+  await assert.rejects(service.acceptAdministrator(target, token));
+  await service.saveAdministrator(owner, data);
+  await prisma.user.update({ where: { id: target.id }, data: { adminInviteExpires: new Date(0), updatedAt: new Date(0) } });
+  await assert.rejects(service.acceptAdministrator(target, token));
+  const expiredToken = token;
+  await service.saveAdministrator(owner, data);
+  await assert.rejects(service.acceptAdministrator(target, expiredToken));
+  await service.revokeAdministrator(owner, target.id);
+  await assert.rejects(service.acceptAdministrator(target, token));
+  global.fetch = async () => ({ ok: false });
+  await assert.rejects(service.saveAdministrator(owner, data), /No se pudo enviar/);
+  target = await prisma.user.findUnique({ where: { id: target.id } });
+  assert.equal(target.role, 'CLIENT'); assert.equal(target.adminInviteStatus, 'FAILED'); assert.equal(target.adminInviteHash, null);
+  await assert.rejects(service.revokeAdministrator(owner, owner.id));
+  console.log('PASS: envío simulado, permisos pendientes, aceptación, identidad, expiración, reenvío, cancelación, fallo y protección del superadministrador.');
+})().catch(e => { console.error(e.message); process.exitCode = 1; }).finally(async () => {
+  global.fetch = originalFetch;
+  await prisma.user.deleteMany({ where: { email: { startsWith: prefix } } });
+  await prisma.$disconnect();
+});

@@ -1,3 +1,4 @@
+import { AcceptInvitation } from './shared/accept-invitation';
 import { Routes } from '@angular/router';
 import { LoginComponent } from './componentes/login/login';
 import { DashboardComponent } from './componentes/dashboard/dashboard';
@@ -7,6 +8,7 @@ import { authGuard } from './core/auth.guard';
 import { superAdminGuard } from './core/super-admin.guard';
 import { Administration } from './shared/administration';
 export const routes: Routes = [
+  { path: 'aceptar-invitacion', component: AcceptInvitation },
   { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'administracion', component: Administration, canActivate: [superAdminGuard] },

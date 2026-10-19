@@ -80,3 +80,9 @@ Para compartir los cambios hay que incluir todas las migraciones nuevas,
 el código y `.env.example`; cada compañero ejecuta `npx prisma migrate deploy`
 y `npx prisma generate` después de descargar el código. No usar `db seed` para
 actualizar una base existente: ese script borra los datos anteriores.
+
+## Invitaciones de administradores
+
+Configurar RESEND_API_KEY e INVITATION_FROM (correo de un dominio verificado en Resend) solo en el backend. FRONTEND_URL debe ser la dirección pública del frontend para invitaciones reales. Aplicar las migraciones con npx prisma migrate deploy.
+
+Crear una cuenta administradora envía una invitación de 48 horas. Hasta aceptarla con la misma cuenta de Google, el usuario sigue siendo CLIENT. El panel se actualiza cada 10 segundos cuando está visible. Las cuentas administradoras anteriores mantienen el acceso. Reenviar invalida el enlace anterior; quitar acceso también cancela cualquier invitación pendiente. Los tokens se guardan como hashes y la aceptación es de un solo uso. Si el proveedor rechaza el correo, se muestra Error de envío, no Solicitud enviada. Enviado significa aceptado por el proveedor; no confirma la entrega en la bandeja del destinatario.
