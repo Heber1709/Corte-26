@@ -1,5 +1,13 @@
 import { ServiceUnavailableException } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
+export function invitationProvider(): 'gmail' | 'resend' {
+  const configured = (process.env.MAIL_PROVIDER || '').trim().replace(/^["']|["']$/g, '').trim().toLowerCase();
+  if (configured === 'gmail' || configured === 'resend') return configured;
+  if (configured) throw new ServiceUnavailableException('MAIL_PROVIDER no es válido. Usa gmail en las variables de Production del backend y vuelve a desplegar.');
+  if (process.env.GMAIL_USER?.trim() || process.env.GMAIL_APP_PASSWORD?.trim()) return 'gmail';
+  if (process.env.RESEND_API_KEY?.trim() && process.env.INVITATION_FROM?.trim()) return 'resend';
+  throw new ServiceUnavailableException('Falta configurar el correo en el backend de Vercel: agrega MAIL_PROVIDER=gmail, GMAIL_USER y GMAIL_APP_PASSWORD para Production y vuelve a desplegar.');
+}
 export function gmailConfig() {
   const user = process.env.GMAIL_USER?.trim();
   const pass = process.env.GMAIL_APP_PASSWORD?.replace(/\s/g, '');

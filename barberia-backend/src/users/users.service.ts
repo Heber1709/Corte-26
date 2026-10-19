@@ -1,4 +1,4 @@
-import { gmailConfig, sendGmailInvitation } from '../common/invitation-mail';
+import { gmailConfig, sendGmailInvitation, invitationProvider } from '../common/invitation-mail';
 import { createHash, randomBytes } from 'node:crypto';
 import { ServiceUnavailableException } from '@nestjs/common';
 import {
@@ -34,7 +34,7 @@ export class UsersService {
     }
     const apiKey = process.env.RESEND_API_KEY?.trim();
     const from = process.env.INVITATION_FROM?.trim();
-    const gmail = process.env.MAIL_PROVIDER === 'gmail';
+    const gmail = invitationProvider() === 'gmail';
     if (gmail) gmailConfig();
     if (!gmail && (!apiKey || !from)) throw new ServiceUnavailableException('Falta configurar el envío de invitaciones: RESEND_API_KEY e INVITATION_FROM.');
     if (existing?.adminInviteStatus === 'SENDING' && existing.updatedAt.getTime() > Date.now() - 60000)

@@ -1,10 +1,16 @@
 const assert = require('node:assert/strict');
 const nodemailer = require('nodemailer');
-const { gmailConfig, sendGmailInvitation } = require('../dist/src/common/invitation-mail');
+const { gmailConfig, sendGmailInvitation, invitationProvider } = require('../dist/src/common/invitation-mail');
 (async () => {
+  for (const value of ['gmail', ' Gmail ', '"gmail"', "'gmail'"]) { process.env.MAIL_PROVIDER = value; assert.equal(invitationProvider(), 'gmail'); }
+  process.env.MAIL_PROVIDER = 'invalid'; assert.throws(invitationProvider, /no es válido/);
+  process.env.MAIL_PROVIDER = 'resend'; assert.equal(invitationProvider(), 'resend');
+  delete process.env.MAIL_PROVIDER; delete process.env.RESEND_API_KEY; delete process.env.INVITATION_FROM;
   delete process.env.GMAIL_USER; delete process.env.GMAIL_APP_PASSWORD;
   assert.throws(gmailConfig, /Falta configurar/);
+  assert.throws(invitationProvider, /Production/);
   process.env.GMAIL_USER = 'sender@example.invalid'; process.env.GMAIL_APP_PASSWORD = 'abcd efgh ijkl mnop';
+  assert.equal(invitationProvider(), 'gmail');
   const config = gmailConfig(); assert.equal(config.auth.pass, 'abcdefghijklmnop'); assert.equal(config.secure, false); assert.equal(config.requireTLS, true); assert.equal(config.port, 587);
   let closed = false;
   nodemailer.createTransport = () => ({ sendMail: async mail => {
