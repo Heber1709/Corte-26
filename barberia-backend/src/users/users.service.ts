@@ -1,3 +1,4 @@
+import { gmailConfig, sendGmailInvitation } from '../common/invitation-mail';
 import { createHash, randomBytes } from 'node:crypto';
 import { ServiceUnavailableException } from '@nestjs/common';
 import {
@@ -33,7 +34,9 @@ export class UsersService {
     }
     const apiKey = process.env.RESEND_API_KEY?.trim();
     const from = process.env.INVITATION_FROM?.trim();
-    if (!apiKey || !from) throw new ServiceUnavailableException('Falta configurar el envío de invitaciones: RESEND_API_KEY e INVITATION_FROM.');
+    const gmail = process.env.MAIL_PROVIDER === 'gmail';
+    if (gmail) gmailConfig();
+    if (!gmail && (!apiKey || !from)) throw new ServiceUnavailableException('Falta configurar el envío de invitaciones: RESEND_API_KEY e INVITATION_FROM.');
     if (existing?.adminInviteStatus === 'SENDING' && existing.updatedAt.getTime() > Date.now() - 60000)
       throw new BadRequestException('Ya se está enviando esta invitación. Espera un minuto.');
     if (existing?.adminInviteStatus === 'SENT' && existing.updatedAt.getTime() > Date.now() - 60000)
@@ -53,6 +56,9 @@ export class UsersService {
     const base = (process.env.FRONTEND_URL || 'http://localhost:4200').replace(/\/$/, '');
     const link = base + '/aceptar-invitacion#invitation=' + token;
     try {
+      if (gmail) {
+        await sendGmailInvitation(email, link);
+      } else {
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST', signal: AbortSignal.timeout(15000),
         headers: { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json', 'Idempotency-Key': 'admin-invite-' + hash },
@@ -63,6 +69,7 @@ export class UsersService {
       if (!response.ok) throw new Error('mail rejected');
       const result = await response.json();
       if (!result.id) throw new Error('mail not confirmed');
+      }
     } catch {
       await this.prisma.user.updateMany({ where: { id: pending.id, adminInviteHash: hash }, data: { adminInviteStatus: 'FAILED', adminInviteHash: null } });
       throw new ServiceUnavailableException('No se pudo enviar el correo. Revisa el proveedor y el remitente; puedes volver a intentar.');

@@ -1,0 +1,19 @@
+const assert = require('node:assert/strict');
+const nodemailer = require('nodemailer');
+const { gmailConfig, sendGmailInvitation } = require('../dist/src/common/invitation-mail');
+(async () => {
+  delete process.env.GMAIL_USER; delete process.env.GMAIL_APP_PASSWORD;
+  assert.throws(gmailConfig, /Falta configurar/);
+  process.env.GMAIL_USER = 'sender@example.invalid'; process.env.GMAIL_APP_PASSWORD = 'abcd efgh ijkl mnop';
+  const config = gmailConfig(); assert.equal(config.auth.pass, 'abcdefghijklmnop'); assert.equal(config.secure, true); assert.equal(config.port, 465);
+  let closed = false;
+  nodemailer.createTransport = () => ({ sendMail: async mail => {
+    assert.equal(mail.from.address, config.auth.user); assert.equal(mail.to, 'target@example.invalid');
+    assert(mail.html.includes('&amp;')); return { accepted: [mail.to], rejected: [] };
+  }, close: () => { closed = true; } });
+  await sendGmailInvitation('target@example.invalid', 'https://example.invalid/a?x=1&y=2'); assert(closed);
+  closed = false;
+  nodemailer.createTransport = () => ({ sendMail: async () => ({ accepted: [], rejected: ['target@example.invalid'] }), close: () => { closed = true; } });
+  await assert.rejects(sendGmailInvitation('target@example.invalid', 'https://example.invalid')); assert(closed);
+  console.log('PASS: configuración Gmail, TLS, remitente, aceptación SMTP y rechazo; sin envío real.');
+})().catch(e => { console.error(e.message); process.exitCode = 1; });

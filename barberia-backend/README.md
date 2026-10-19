@@ -86,3 +86,7 @@ actualizar una base existente: ese script borra los datos anteriores.
 Configurar RESEND_API_KEY e INVITATION_FROM (correo de un dominio verificado en Resend) solo en el backend. FRONTEND_URL debe ser la dirección pública del frontend para invitaciones reales. Aplicar las migraciones con npx prisma migrate deploy.
 
 Crear una cuenta administradora envía una invitación de 48 horas. Hasta aceptarla con la misma cuenta de Google, el usuario sigue siendo CLIENT. El panel se actualiza cada 10 segundos cuando está visible. Las cuentas administradoras anteriores mantienen el acceso. Reenviar invalida el enlace anterior; quitar acceso también cancela cualquier invitación pendiente. Los tokens se guardan como hashes y la aceptación es de un solo uso. Si el proveedor rechaza el correo, se muestra Error de envío, no Solicitud enviada. Enviado significa aceptado por el proveedor; no confirma la entrega en la bandeja del destinatario.
+
+### Envio con Gmail sin dominio propio
+
+Configurar MAIL_PROVIDER=gmail, GMAIL_USER (cuenta remitente) y GMAIL_APP_PASSWORD (contraseña de aplicación de Google, nunca la contraseña normal). Para Gmail no se usan RESEND_API_KEY ni INVITATION_FROM. La conexión usa SMTP con TLS en smtp.gmail.com:465. Guardar las variables tanto en .env local como en Vercel/backend y volver a desplegar. FRONTEND_URL en producción debe apuntar a https://barberia-corte-26.vercel.app para que el destinatario pueda aceptar desde su dispositivo.

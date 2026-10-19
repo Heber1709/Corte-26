@@ -1,5 +1,6 @@
 // Ejecutar solo contra una base local de pruebas; no envía correos reales.
 require('dotenv').config({ quiet: true });
+process.env.MAIL_PROVIDER = 'resend'; // Transporte simulado para estas pruebas.
 const assert = require('node:assert/strict');
 const { PrismaClient } = require('@prisma/client');
 const { UsersService } = require('../dist/src/users/users.service');
